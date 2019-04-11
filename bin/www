@@ -40,6 +40,7 @@ mongoose.connect(dbConfig.url, {
     io.on('connection', (socket) => {
       console.log(`Nuevo usuario conectado: ${socket.id}`);
       
+      socket.emit('CONECTADO', 'Conectado a Socket.IO');
       socket.on('CREAR_LISTA', (data) => {
         socket.broadcast.emit(data);
       });
