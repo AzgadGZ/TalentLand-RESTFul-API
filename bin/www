@@ -41,21 +41,31 @@ mongoose.connect(dbConfig.url, {
       console.log(`Nuevo usuario conectado: ${socket.id}`);
       
       socket.emit('CONECTADO', 'Conectado a Socket.IO');
-      socket.on('CREAR_LISTA', (data) => {
-        socket.broadcast.emit(data);
+
+      socket.on('EMISION_CREAR_LISTA', (data) => {
+        socket.broadcast.emit('LISTA_NUEVA', data)
       });
 
-      socket.on('CREAR_TAREA', (data) => {
-        socket.broadcast.emit(data);
+      socket.on('EMISION_CREAR_TAREA', (data) => {
+        socket.broadcast.emit('TAREA_NUEVA', data)
       });
 
-      socket.on('ELIMINAR_LISTA', (data) => {
-        socket.broadcast.emit(data);
+      socket.on('EMISION_ELIMINAR_LISTA', (data) => {
+        socket.broadcast.emit('ELIMINAR_LISTA', data)
       });
 
-      socket.on('ELIMINAR_TAREA', (data) => {
-        socket.broadcast.emit(data);
+      socket.on('EMISION_ELIMINAR_TAREA', (data) => {
+        socket.broadcast.emit('ELIMINAR_TAREA', data)
       });
+
+      socket.on('EMISION_ACTUALIZAR_LISTA', (data) => {
+        socket.broadcast.emit('ACTUALIZAR_LISTA', data)
+      });
+
+      socket.on('EMISION_ACTUALIZAR_TAREA', (data) => {
+        socket.broadcast.emit('ACTUALIZAR_TAREA', data)
+      });
+
 
     });
   })

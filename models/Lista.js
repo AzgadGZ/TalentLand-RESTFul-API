@@ -7,7 +7,6 @@ const listaSchema = new mongoose.Schema({
     },
     iconName: {
         type: String,
-        required: true,
         default: "folder"
     }
 });
