@@ -22,6 +22,10 @@ const tareasSchema = new mongoose.Schema({
 		type: String,
 		required: false
 	},
+	finished: {
+		type: Boolean,
+		default: false
+	},
 	listId: {
 		type: mongoose.Schema.Types.ObjectId,
 		required: true
