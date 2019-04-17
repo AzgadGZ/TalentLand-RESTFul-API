@@ -37,8 +37,8 @@ exports.GET_TareaPorId = async (req, res) => {
 
 exports.DELETE_Tarea = async (req, res) => {
   try {
-    const tareaBorrada = await Tarea.findByIdAndRemove(req.body.id);
-    res.json(tareaBorrada);
+    await Tarea.findByIdAndRemove(req.body._id);
+    res.json(req.body);
   } catch (error) {
     res.status(400).send(error);
   }
@@ -46,15 +46,15 @@ exports.DELETE_Tarea = async (req, res) => {
 
 exports.UPDATE_Tarea = async (req, res) => {
   try {
-    const tareaActualizada = new Tarea({
+    const tareaActualizada = {
       title: req.body.title,
       description: req.body.description,
       date: req.body.date,
       dueDate: req.body.dueDate,
       assignedTo: req.body.assignedTo,
-      listId: req.body.listId
-    });
-
+      listId: req.body.listId,
+      finished: req.body.finished,
+    };
     const tareaActualizadaResultado = await Tarea.findByIdAndUpdate(
       req.query.id,
       tareaActualizada,
