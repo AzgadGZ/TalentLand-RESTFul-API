@@ -1,90 +1,68 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+/*
+*  Dependencias necesario
+*/
 
+// Archivo app.js que tiene la configuración de la aplicación
 const app = require('../app');
-const debug = require('debug')('todo-api:server');
+
+// Interfaz http que Node.Js usa para correr
 const http = require('http');
 
+// Configuración de MongoDB y puerto por defecto
 const dbConfig = require('../config/database.config');
+
+// Modulo de Mongoose
 const mongoose = require('mongoose');
-const socketIO = require('socket.io');
 
+/*
+*  Obtener puerto desde el ambiente y guaradlo en Express (si esta disponible)
+*  si no es el caso, se le asigna un puerto por defecto
+*/
+const port = normalizePort(process.env.PORT || dbConfig.appPort);
 
-/**
- * Get port from environment and store in Express.
- */
-
-const port = normalizePort(process.env.PORT || '3000');
+// Se asigna el puerto en la applcación
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
+/*
+*  Sea crea el servidor HTTP con la configuración de app.js
+*/
 const server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-
+/*
+*  Creamos la configuración inicial para que inicializar moogoose
+*  le pasamos el el string de conexión y una opción para usar un
+*  parser de conexión (Mongo v3.1.0+)
+*/
 mongoose.connect(dbConfig.url, {
   useNewUrlParser: true
 })
+  // Si la conexión fue existosa se ejecuta este bloque
   .then(() => {
+
+    // Inicializamos el servidor para que escuche en el puerto asignado
     server.listen(port);
-    const io = socketIO(server);
-
-    io.on('connection', (socket) => {
-      console.log(`Nuevo usuario conectado: ${socket.id}`);
-      
-      socket.emit('CONECTADO', 'Conectado a Socket.IO');
-
-      socket.on('EMISION_CREAR_LISTA', (data) => {
-        socket.broadcast.emit('LISTA_NUEVA', data)
-      });
-
-      socket.on('EMISION_CREAR_TAREA', (data) => {
-        socket.broadcast.emit('TAREA_NUEVA', data)
-      });
-
-      socket.on('EMISION_ELIMINAR_LISTA', (data) => {
-        socket.broadcast.emit('ELIMINAR_LISTA', data)
-      });
-
-      socket.on('EMISION_ELIMINAR_TAREA', (data) => {
-        socket.broadcast.emit('ELIMINAR_TAREA', data)
-      });
-
-      socket.on('EMISION_ACTUALIZAR_LISTA', (data) => {
-        socket.broadcast.emit('ACTUALIZAR_LISTA', data)
-      });
-
-      socket.on('EMISION_ACTUALIZAR_TAREA', (data) => {
-        socket.broadcast.emit('ACTUALIZAR_TAREA', data)
-      });
-
-
-    });
   })
+  // Si la conexión fue erronea se ejecuta este bloque
   .catch((error) => {
     console.log('www error catch on mongo', error);
   });
 
+  // Agregando evento 'error' y la función que lo manejara
 server.on('error', onError);
+
+// Agregando evento 'listening' y la función que lo manejara
 server.on('listening', onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
+/*
+*  Normalizando el puerto en un número, string, o un false.
+*/
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
 
@@ -96,9 +74,9 @@ function normalizePort(val) {
   return false;
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
+/*
+*  Listener para manejar el evento HTTP server "error".
+*/
 
 function onError(error) {
   if (error.syscall !== 'listen') {
@@ -109,14 +87,14 @@ function onError(error) {
     ? 'Pipe ' + port
     : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
+  // Manejar error especificos con mensajes más especificos
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      console.error(bind + ' requiere permisos elevados');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      console.error(bind + ' ya está en uso');
       process.exit(1);
       break;
     default:
@@ -124,14 +102,14 @@ function onError(error) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+/*
+*  Listener para manejar el evento HTTP server "listening".
+*/
 
 function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  console.log('Listening on ' + bind);
+  console.log('Escuchando en ' + bind);
 }
