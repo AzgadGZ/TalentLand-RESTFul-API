@@ -16,6 +16,9 @@ const dbConfig = require('../config/database.config');
 // Modulo de Mongoose
 const mongoose = require('mongoose');
 
+//Importar Socket.io
+const socketIO = require('socket.io');
+
 /*
 *  Obtener puerto desde el ambiente y guaradlo en Express (si esta disponible)
 *  si no es el caso, se le asigna un puerto por defecto
@@ -43,6 +46,40 @@ mongoose.connect(dbConfig.url, {
 
     // Inicializamos el servidor para que escuche en el puerto asignado
     server.listen(port);
+
+    // Creamos el objeto io, creando una instancia de socketIO que corre sobre el host/port de server.
+    const io = socketIO(server);
+
+    // Definimos el evento connection y sus eventListeners
+    io.on('connection', (socket) => {
+
+      // Emitimos a cada cliente que se conecte 
+      socket.emit('CONECTADO', 'Conectado a Socket.IO');
+
+
+      // De aquí en adelante son eventos autodefinidos, el socket.on "escucha" a que llegue y
+      // socket.broadcast.emit lo manda a todos los clientes conectados, menos al que lo mandó.
+      socket.on('EMISION_CREAR_LISTA', (data) => {
+        socket.broadcast.emit('LISTA_NUEVA', data)
+      });
+
+      socket.on('EMISION_CREAR_TAREA', (data) => {
+        socket.broadcast.emit('TAREA_NUEVA', data)
+      });
+
+      socket.on('EMISION_ELIMINAR_LISTA', (data) => {
+        socket.broadcast.emit('ELIMINAR_LISTA', data)
+      });
+
+      socket.on('EMISION_ELIMINAR_TAREA', (data) => {
+        socket.broadcast.emit('ELIMINAR_TAREA', data)
+      });
+
+      socket.on('EMISION_ACTUALIZAR_TAREA', (data) => {
+        socket.broadcast.emit('ACTUALIZAR_TAREA', data)
+      });
+
+    });
   })
   // Si la conexión fue erronea se ejecuta este bloque
   .catch((error) => {
